@@ -120,18 +120,11 @@ def monte_carlo_tree_search(game: Game, iterations=100):
             node.expand()
 
         # check if the state of the node is in the dynamic programming table
-        key = hash(get_hashable_state(node.state))  # todo make state hashable
-        if key in table:
-            # print("hashed result")
-            # if the value is in the table, use it to update the node's value and visit count
-            node.value = table[key][0]
-            node.visits = table[key][1]
         # else:
         # if the value is not in the table, simulate a playout and update the node's value and visit count
         playout_state = deepcopy(node.state)
         playout(playout_state)
         node.update(playout_state)
-        table[key] = (node.value, node.visits)
 
         # propagate the results of the playout back up the tree
         while node is not None:
@@ -174,18 +167,32 @@ class Node:
 
     def select_child(self):
         # select a child node using the UCB1 formula
-        best_score = -float("inf")
-        best_child = None
+        if self.state.whose_turn() == self.children[0].state.whose_turn():
+            selected_score = self.children[0].value / max(self.children[0].visits, 1) + math.sqrt(2 * math.log(self.visits) / max(self.children[0].visits, 1))
+        else:
+            selected_score = -self.children[0].value / max(self.children[0].visits, 1) + math.sqrt(2 * math.log(self.visits) / max(self.children[0].visits, 1))
+
+        selected_child = self.children[0]
         for child in self.children:
-            score = child.value / max(child.visits, 1) + math.sqrt(2 * math.log(self.visits) / max(child.visits, 1))
-            if score > best_score:
-                best_score = score
-                best_child = child
-        return best_child
+            if self.state.whose_turn() == child.state.whose_turn():
+                score = child.value / max(child.visits, 1) + math.sqrt(2 * math.log(self.visits) / max(child.visits, 1))
+            else:
+                score = -child.value / max(child.visits, 1) + math.sqrt(
+                    2 * math.log(self.visits) / max(child.visits, 1))
+            if score > selected_score:
+                selected_score = score
+                selected_child = child
+        return selected_child
 
     def update(self, playout_state):
         # update the node's value and visit count based on the results of the playout
+        key = hash(get_hashable_state(self.state))  # todo make state hashable
+        if key in table:
+            # if the value is in the table, use it to update the node's value and visit count
+            self.value = table[key][0]
+            self.visits = table[key][1]
         self.visits += 1
+
         if playout_state.get_winner() == self.state.whose_turn():
             # print("win")
             self.value += 1
@@ -195,6 +202,8 @@ class Node:
         else:
             # print("lose") # todo can I use negative values
             self.value += -1
+        key = hash(get_hashable_state(self.state))  # todo make state hashable
+        table[key] = (self.value, self.visits)
 
 
 def main():
@@ -203,17 +212,19 @@ def main():
 
     while not game.is_over():
         if game.whose_turn() == 1:
-            move = monte_carlo_tree_search(game, 10)
+            move = monte_carlo_tree_search(game, 2)
         else:
             moves = game.get_possible_moves()
             move = moves[get_random_move(moves)]
         game.move(move)
         # print_board(game.board)
-    print(f"Winner is player {game.get_winner()}")
+    print(f"Winner is player {game.get_winner()},  Buffer size:{len(table)}")
 
 
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
+    game = Game()
+    move = monte_carlo_tree_search(game, 10000)
     while True:
         main()
 
