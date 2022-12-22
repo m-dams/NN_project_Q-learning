@@ -124,7 +124,6 @@ def monte_carlo_tree_search(game: Game, iterations=100):
         # if the value is not in the table, simulate a playout and update the node's value and visit count
         playout_state = deepcopy(node.state)
         playout(playout_state)
-        node.update(playout_state)
 
         # propagate the results of the playout back up the tree
         while node is not None:
