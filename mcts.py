@@ -135,11 +135,11 @@ def monte_carlo_tree_search(game: Game, iterations=100):
     selected_score = root.children[0].value
     for child in root.children:
         if child.state.whose_turn() != root.state.whose_turn():
-            if child.value < selected_score: # todo whe should select child with worst score as child has opposite goal?
+            if child.value < selected_score:  # todo whe should select child with worst score as child has opposite goal?
                 selected_score = child.value
                 selected_move = child.move
         else:
-            if child.value > selected_score: # todo whe should select child with worst score as child has opposite goal?
+            if child.value > selected_score:  # todo whe should select child with worst score as child has opposite goal?
                 selected_score = child.value
                 selected_move = child.move
 
@@ -167,9 +167,11 @@ class Node:
     def select_child(self):
         # select a child node using the UCB1 formula
         if self.state.whose_turn() == self.children[0].state.whose_turn():
-            selected_score = self.children[0].value / max(self.children[0].visits, 1) + math.sqrt(2 * math.log(self.visits) / max(self.children[0].visits, 1))
+            selected_score = self.children[0].value / max(self.children[0].visits, 1) + math.sqrt(
+                2 * math.log(self.visits) / max(self.children[0].visits, 1))
         else:
-            selected_score = -self.children[0].value / max(self.children[0].visits, 1) + math.sqrt(2 * math.log(self.visits) / max(self.children[0].visits, 1))
+            selected_score = -self.children[0].value / max(self.children[0].visits, 1) + math.sqrt(
+                2 * math.log(self.visits) / max(self.children[0].visits, 1))
 
         selected_child = self.children[0]
         for child in self.children:
@@ -219,8 +221,9 @@ def main():
         # print_board(game.board)
     print(f"Winner is player {game.get_winner()},  Buffer size:{len(table)}")
 
+
 def warmup_engine():
-    monte_carlo_tree_search(Game(), 1000)
+    monte_carlo_tree_search(Game(), 100)
 
 
 # Press the green button in the gutter to run the script.
