@@ -212,7 +212,7 @@ def main():
 
     while not game.is_over():
         if game.whose_turn() == 1:
-            move = monte_carlo_tree_search(game, 2)
+            move = monte_carlo_tree_search(game, 10)
         else:
             moves = game.get_possible_moves()
             move = moves[get_random_move(moves)]
@@ -220,11 +220,13 @@ def main():
         # print_board(game.board)
     print(f"Winner is player {game.get_winner()},  Buffer size:{len(table)}")
 
+def warmup_engine():
+    monte_carlo_tree_search(Game(), 1000)
+
 
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
-    game = Game()
-    move = monte_carlo_tree_search(game, 10000)
+    warmup_engine()
     while True:
         main()
 
