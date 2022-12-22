@@ -1,6 +1,7 @@
 # This is a sample Python script.
 import random
 import time
+from copy import deepcopy
 
 from checkers.game import Game
 
